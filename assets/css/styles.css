@@ -1,0 +1,169 @@
+/* Background styling */
+body {
+    margin: 0;
+    padding: 0;
+    background-image: url('../images/pic2.jpg');
+    background-size: cover;
+    background-position: center;
+    font-family: Arial, sans-serif;
+    overflow-x: hidden;
+}
+
+/* Main container with glass effect */
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    position: relative;
+    overflow: hidden;
+    animation: fadeIn 1s ease-in-out;
+}
+
+/* Dark overlay */
+.overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    z-index: 1;
+    animation: slideIn 1.5s ease-in-out;
+}
+
+/* Glass effect login box */
+.login-box {
+    position: relative;
+    z-index: 2;
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(15px) saturate(180%);
+    -webkit-backdrop-filter: blur(15px) saturate(180%);
+    padding: 40px 50px;
+    border-radius: 20px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    animation: popUp 1s ease-in-out;
+}
+
+/* Heading style */
+.login-box h1 {
+    color: #f8b400;
+    font-size: 40px;
+    margin-bottom: 20px;
+    font-family: 'Georgia', serif;
+    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
+    animation: bounceIn 1.2s ease-out;
+}
+
+/* Welcome text */
+.login-box p {
+    margin-bottom: 20px;
+    color: #eee;
+    font-size: 14px;
+    text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.3);
+    animation: fadeIn 1.8s ease-in-out;
+}
+
+/* Input fields */
+.login-box input {
+    width: 100%;
+    padding: 15px;
+    margin: 15px 0;
+    border-radius: 10px;
+    border: 1px solid #ddd;
+    font-size: 16px;
+    background-color: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+}
+
+.login-box input:focus {
+    outline: none;
+    border-color: #f8b400;
+    box-shadow: 0 0 15px rgba(248, 180, 0, 0.5);
+    background-color: rgba(255, 255, 255, 0.9);
+    transform: scale(1.02);
+}
+
+/* Login button */
+.login-box button {
+    width: 100%;
+    padding: 15px;
+    background-color: #f8b400;
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 18px;
+    transition: background-color 0.3s, transform 0.2s;
+    animation: buttonBounce 1.5s ease-in-out infinite alternate;
+}
+
+/* Button hover effect */
+.login-box button:hover {
+    background-color: #d89600;
+    transform: scale(1.05);
+}
+
+/* Register link */
+.login-box a {
+    color: #f8b400;
+    text-decoration: none;
+    font-weight: bold;
+    transition: color 0.3s;
+}
+
+.login-box a:hover {
+    color: #d89600;
+    text-decoration: underline;
+}
+
+/* Footer styling */
+footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    text-align: center;
+    padding: 15px 0;
+    background-color: rgba(0, 0, 0, 0.8);
+    color: #eee;
+    font-size: 14px;
+    z-index: 2;
+    backdrop-filter: blur(10px);
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    animation: slideUp 1.8s ease-in-out;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+}
+
+@keyframes slideIn {
+    0% { transform: translateY(-100%); }
+    100% { transform: translateY(0); }
+}
+
+@keyframes popUp {
+    0% { transform: scale(0.8); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes buttonBounce {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(-5px); }
+}
+
+@keyframes bounceIn {
+    0% { transform: scale(0.8); }
+    100% { transform: scale(1); }
+}
+
+@keyframes slideUp {
+    0% { transform: translateY(100%); }
+    100% { transform: translateY(0); }
+}
