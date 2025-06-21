@@ -1,125 +1,146 @@
-/* Body Styling */
+/* Background */
 body {
-    margin: 0;
-    padding: 0;
-    background-image: url('../images/pic2.jpg');
-    background-size: cover;
-    background-position: center;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    color: #fff;
+  margin: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: url('../images/pic2.jpg') no-repeat center center fixed;
+  background-size: cover;
+  backdrop-filter: blur(6px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
 }
 
-/* Centered Form Container */
-.form-container {
-    width: 90%;
-    max-width: 480px;
-    margin: 60px auto;
-    padding: 35px 30px;
-    background: rgba(255, 255, 255, 0.08);
-    backdrop-filter: blur(18px);
-    border-radius: 18px;
-    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.3);
-    color: #fff;
-    opacity: 0;
-    transform: translateY(50px);
-    transition: all 0.6s ease-in-out;
+/* Fade-in animation */
+.fade-in {
+  animation: fadeIn 1s ease-in-out;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-/* Fade In */
-.form-container.visible {
-    opacity: 1;
-    transform: translateY(0);
+/* Container */
+.register-container {
+  background: rgba(255, 255, 255, 0.95);
+  padding: 30px;
+  border-radius: 15px;
+  max-width: 500px;
+  width: 100%;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
+  overflow-y: auto;
+  max-height: 90vh;
 }
 
-/* Form Title */
-.form-container h2 {
-    text-align: center;
-    color: #f8b400;
-    font-size: 26px;
-    margin-bottom: 25px;
-    font-family: 'Georgia', serif;
-    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+/* Header */
+.register-container h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #333;
 }
 
-/* Input Fields */
-.form-container input[type="text"],
-.form-container input[type="email"],
-.form-container input[type="password"],
-.form-container input[type="number"],
-.form-container select {
-    width: 100%;
-    padding: 14px;
-    margin: 12px 0;
-    border-radius: 10px;
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    font-size: 15px;
-    background-color: rgba(255, 255, 255, 0.95);
-    color: #333;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    transition: all 0.3s;
+/* Input groups */
+.input-group {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+  background: #f1f1f1;
+  padding: 8px 12px;
+  border-radius: 8px;
 }
 
-/* Focus Glow Effect */
-.form-container input:focus,
-.form-container select:focus {
-    outline: none;
-    box-shadow: 0 0 18px rgba(248, 180, 0, 0.9);
+.input-group i {
+  margin-right: 10px;
+  color: #555;
 }
 
-/* Submit Button */
-.form-container button {
-    width: 100%;
-    padding: 14px;
-    background-color: #f8b400;
-    color: #fff;
-    border: none;
-    border-radius: 10px;
-    cursor: pointer;
-    font-size: 17px;
-    margin-top: 15px;
-    transition: all 0.4s ease;
+.input-group input,
+.input-group select {
+  border: none;
+  background: transparent;
+  outline: none;
+  flex: 1;
+  font-size: 16px;
+  color: #333;
 }
 
-/* Button Hover */
-.form-container button:hover {
-    background-color: #d89600;
-    transform: translateY(-2px) scale(1.02);
-    box-shadow: 0 12px 25px rgba(216, 150, 0, 0.4);
+.input-group select {
+  padding-right: 5px;
 }
 
-/* Footer */
-.footer {
-    text-align: center;
-    color: #eee;
-    margin-top: 25px;
+/* Child section */
+#children-wrapper .child-block {
+  padding: 15px;
+  border: 1px dashed #ccc;
+  border-radius: 10px;
+  margin-bottom: 15px;
+  background: #f9f9f9;
+}
+
+/* Buttons */
+button {
+  display: inline-block;
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 10px;
+  background-color: #2a9d8f;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: background-color 0.3s;
+}
+
+button:hover {
+  background-color: #21867a;
+}
+
+#add-child {
+  background-color: #f4a261;
+}
+
+#add-child:hover {
+  background-color: #e07b39;
+}
+
+/* Messages */
+.success {
+  color: green;
+  background: #d4edda;
+  padding: 10px;
+  border-left: 5px solid green;
+  border-radius: 5px;
+  margin-bottom: 10px;
+}
+
+.error {
+  color: red;
+  background: #f8d7da;
+  padding: 10px;
+  border-left: 5px solid red;
+  border-radius: 5px;
+  margin-bottom: 10px;
+}
+
+/* Responsive */
+@media screen and (max-width: 600px) {
+  .register-container {
+    padding: 20px;
+    max-width: 95%;
+  }
+
+  .input-group {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .input-group i {
+    margin-bottom: 5px;
+  }
+
+  button {
     font-size: 14px;
-}
-
-.footer a {
-    color: #f8b400;
-    text-decoration: none;
-    font-weight: 600;
-}
-
-.footer a:hover {
-    text-decoration: underline;
-}
-
-.input-icon {
-    position: relative;
-    margin-bottom: 15px;
-}
-
-.input-icon i {
-    position: absolute;
-    left: 12px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: #888;
-    font-size: 16px;
-}
-
-.input-icon input,
-.input-icon select {
-    padding-left: 38px !important;
+    padding: 10px;
+  }
 }
