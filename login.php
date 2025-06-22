@@ -20,26 +20,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $user = $result->fetch_assoc();
 
         if ($user && password_verify($password, $user['password'])) {
-            // Store user info in session
-            $_SESSION['user_id'] = $user['id'];
-            $_SESSION['user_role'] = $user['role'];
-            $_SESSION['user_name'] = $user['name'];
-            
-            // Redirect based on role
-            switch ($user['role']) {
-                case 'admin':
-                    header('Location: admin/index.php');
-                    break;
-                case 'teacher':
-                    header('Location: teacher/index.php');
-                    break;
-                case 'parent':
-                    header('Location: parent/index.php');
-                    break;
-                default:
-                    $error = 'Invalid user role.';
+            // Prevent unapproved teachers from logging in
+            if ($user['role'] === 'teacher' && $user['approved'] == 0) {
+                $error = 'Your account is pending admin approval. Please wait until an admin approves your registration.';
+            } else {
+                // Store user info in session
+                $_SESSION['user_id'] = $user['id'];
+                $_SESSION['user_role'] = $user['role'];
+                $_SESSION['user_name'] = $user['name'];
+
+                // Redirect based on role
+                switch ($user['role']) {
+                    case 'admin':
+                        header('Location: admin/index.php');
+                        break;
+                    case 'teacher':
+                        header('Location: teacher/index.php');
+                        break;
+                    case 'parent':
+                        header('Location: parent/index.php');
+                        break;
+                    default:
+                        $error = 'Invalid user role.';
+                }
+                exit();
             }
-            exit();
         } else {
             $error = 'Invalid email or password.';
         }

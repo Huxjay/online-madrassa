@@ -1,6 +1,8 @@
 <?php
 include 'includes/db.php';
 
+$success = false;
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $name = trim($_POST['name']);
     $email = trim($_POST['email']);
@@ -22,8 +24,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $stmt->close();
 
     // 2. Insert into users
-    $stmt = $conn->prepare("INSERT INTO users (name, email, password, role, location_id) VALUES (?, ?, ?, 'teacher', ?)");
-    $stmt->bind_param("sssi", $name, $email, $password, $location_id);
+    $role = 'teacher';
+    $approved = 0;
+    $stmt = $conn->prepare("INSERT INTO users (name, email, password, role, location_id, approved) VALUES (?, ?, ?, ?, ?, ?)");
+    $stmt->bind_param('ssssii', $name, $email, $password, $role, $location_id, $approved);
     $stmt->execute();
     $user_id = $stmt->insert_id;
     $stmt->close();
@@ -34,7 +38,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $stmt->execute();
     $stmt->close();
 
-    $success = "Teacher registered successfully!";
+    $success = true;
 }
 ?>
 
@@ -46,15 +50,66 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <title>Register Teacher - Online Madrassa</title>
   <link rel="stylesheet" href="assets/css/register.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    .modal {
+      position: fixed;
+      z-index: 9999;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: rgba(0, 0, 0, 0.6);
+      animation: fadeIn 0.4s ease-in-out;
+    }
+
+    .modal-content {
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      text-align: center;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      animation: popUp 0.3s ease;
+      max-width: 400px;
+      width: 90%;
+    }
+
+    .modal-content h2 {
+      margin-top: 0;
+      color: #27ae60;
+    }
+
+    .modal-content button {
+      padding: 10px 20px;
+      border: none;
+      background: #27ae60;
+      color: white;
+      font-weight: bold;
+      border-radius: 8px;
+      margin-top: 20px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .modal-content button:hover {
+      background: #219150;
+    }
+
+    @keyframes popUp {
+      from { transform: scale(0.8); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+  </style>
 </head>
 <body>
   <div class="register-container">
     <div class="form-box">
       <h2><i class="fas fa-chalkboard-teacher"></i> Register as Teacher</h2>
-
-      <?php if (isset($success)): ?>
-        <p class="success"><?php echo $success; ?></p>
-      <?php endif; ?>
 
       <form method="POST" action="">
         <div class="input-group">
@@ -113,30 +168,44 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
   </div>
 
+  <?php if ($success): ?>
+  <div id="successModal" class="modal">
+    <div class="modal-content">
+      <h2>✅ Registration Successful</h2>
+      <p>Please wait for admin approval before logging in.</p>
+      <button onclick="closeModal()">OK</button>
+    </div>
+  </div>
+  <?php endif; ?>
+
   <script>
-    // Geolocation + OpenStreetMap reverse geocoding
-    window.onload = () => {
+    function closeModal() {
+      document.getElementById("successModal").style.display = "none";
+    }
+
+    // Geolocation and reverse geocoding
+    window.onload = function () {
       if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(success => {
-          const lat = success.coords.latitude;
-          const lon = success.coords.longitude;
+        navigator.geolocation.getCurrentPosition(function (position) {
+          const lat = position.coords.latitude;
+          const lon = position.coords.longitude;
 
           document.getElementById('latitude').value = lat;
           document.getElementById('longitude').value = lon;
 
           fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`)
-            .then(response => response.json())
+            .then(res => res.json())
             .then(data => {
-              document.getElementById('location').value = data.display_name;
+              document.getElementById('location').value = data.display_name || 'Location Found';
             })
             .catch(() => {
-              document.getElementById('location').value = "Location unavailable";
+              document.getElementById('location').value = 'Could not fetch location';
             });
-        }, error => {
-          document.getElementById('location').value = "Permission denied or error fetching location.";
+        }, () => {
+          document.getElementById('location').value = 'Location permission denied';
         });
       } else {
-        document.getElementById('location').value = "Geolocation not supported";
+        document.getElementById('location').value = 'Geolocation not supported';
       }
     };
   </script>
