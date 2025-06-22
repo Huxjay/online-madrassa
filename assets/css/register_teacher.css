@@ -1,0 +1,148 @@
+/* Background */
+body {
+    margin: 0;
+    padding: 0;
+    background-image: url('../images/pic2.jpg');
+    background-size: cover;
+    background-position: center;
+    font-family: 'Segoe UI', sans-serif;
+    overflow-x: hidden;
+}
+
+/* Register container with glass effect */
+.register-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    position: relative;
+    z-index: 1;
+    animation: fadeIn 1s ease-in-out;
+}
+
+/* Form box */
+.form-box {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(15px) saturate(180%);
+    -webkit-backdrop-filter: blur(15px) saturate(180%);
+    padding: 40px;
+    border-radius: 20px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    width: 100%;
+    max-width: 500px;
+    position: relative;
+    text-align: center;
+    animation: slideIn 1s ease-out;
+}
+
+/* Heading */
+.form-box h2 {
+    color: #f8b400;
+    font-size: 32px;
+    margin-bottom: 20px;
+    font-family: 'Georgia', serif;
+    text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+/* Input group */
+.input-group {
+    position: relative;
+    margin: 20px 0;
+    text-align: left;
+}
+
+.input-group i {
+    position: absolute;
+    top: 50%;
+    left: 15px;
+    transform: translateY(-50%);
+    color: #666;
+}
+
+.input-group input,
+.input-group select {
+    width: 100%;
+    padding: 15px 15px 15px 45px;
+    border-radius: 10px;
+    border: 1px solid #ccc;
+    font-size: 16px;
+    background: rgba(255, 255, 255, 0.9);
+    transition: 0.3s ease-in-out;
+}
+
+.input-group input:focus,
+.input-group select:focus {
+    outline: none;
+    border-color: #f8b400;
+    box-shadow: 0 0 12px rgba(248, 180, 0, 0.5);
+    transform: scale(1.02);
+}
+
+/* Button */
+.submit-btn {
+    width: 100%;
+    padding: 15px;
+    background-color: #f8b400;
+    color: white;
+    font-size: 18px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    margin-top: 10px;
+    animation: buttonBounce 1.5s ease-in-out infinite alternate;
+}
+
+.submit-btn:hover {
+    background-color: #d89600;
+    transform: scale(1.05);
+}
+
+/* Success message */
+.success {
+    background-color: rgba(0, 128, 0, 0.7);
+    color: white;
+    padding: 10px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    font-weight: bold;
+    animation: popUp 0.5s ease-in-out;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideIn {
+    from { transform: translateY(-50px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes buttonBounce {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(-5px); }
+}
+
+@keyframes popUp {
+    0% { transform: scale(0.8); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+/* Mobile Responsive */
+@media (max-width: 600px) {
+    .form-box {
+        padding: 30px 20px;
+        width: 90%;
+    }
+
+    .input-group input,
+    .input-group select {
+        padding-left: 40px;
+    }
+
+    .form-box h2 {
+        font-size: 24px;
+    }
+}

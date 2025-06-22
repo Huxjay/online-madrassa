@@ -31,10 +31,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     header('Location: admin/index.php');
                     break;
                 case 'teacher':
-                    header('Location: dashboard/teacher.php');
+                    header('Location: teacher/index.php');
                     break;
                 case 'parent':
-                    header('Location: dashboard/parent.php');
+                    header('Location: parent/index.php');
                     break;
                 default:
                     $error = 'Invalid user role.';
@@ -68,12 +68,41 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <input type="password" name="password" placeholder="Enter your password" required>
                 <button type="submit">Login</button>
             </form>
-            <p>Don’t have an account? <a href="register.php">Register</a></p>
+        
+             <p>Don’t have an account? <a href="#" id="openModal">Register</a></p>
         </div>
     </div>
     <footer>
         <p>© 2025 Online Madrassa. All rights reserved. | Designed with ❤️ by YourName</p>
     </footer>
+
+
+        <!-- Modal for Register Choice -->
+<div id="registerModal" class="modal">
+  <div class="modal-content">
+    <span class="close" id="closeModal">&times;</span>
+    <h2>Register as:</h2>
+    <div class="button-group">
+      <a href="register.php" class="btn">Parent</a>
+      <a href="register_teacher.php" class="btn">Teacher</a>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Modal Logic
+  const openModal = document.getElementById('openModal');
+  const closeModal = document.getElementById('closeModal');
+  const modal = document.getElementById('registerModal');
+
+  openModal.onclick = () => modal.style.display = 'block';
+  closeModal.onclick = () => modal.style.display = 'none';
+  window.onclick = (e) => {
+    if (e.target === modal) modal.style.display = 'none';
+  };
+</script>
     <script src="assets/js/scripts.js"></script>
+
+
 </body>
 </html>
