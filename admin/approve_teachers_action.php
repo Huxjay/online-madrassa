@@ -28,12 +28,16 @@ if (isset($_POST['approve_teacher'])) {
     $getUser->fetch();
     $getUser->close();
 
-    // 4. Send email via Gmail SMTP
+   // 4. Send email via Gmail SMTP
     $sendResult = sendApprovalEmail($email, $name);
     if ($sendResult === true) {
-        $approved_success = "✅ Teacher approved and email sent successfully!";
+        // ✅ Success
+        header("Location: approve_teachers.php?success=1");
+        exit;
     } else {
-        $approved_success = "✅ Teacher approved, but email failed to send: $sendResult";
+        // ⚠ Send with email failure info
+        header("Location: approve_teachers.php?email_error=" . urlencode($sendResult));
+        exit;
     }
 }
 

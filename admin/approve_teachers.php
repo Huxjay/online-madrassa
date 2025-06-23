@@ -2,24 +2,13 @@
 include('../includes/admin_session.php');
 include('../includes/db.php');
 
-// Handle approval submission
-if (isset($_POST['approve_teacher'])) {
-    $user_id = $_POST['user_id'];
-
-    // 1. Update approval status
-    $update = $conn->prepare("UPDATE users SET approved = 1 WHERE id = ?");
-    $update->bind_param("i", $user_id);
-    $update->execute();
-    $update->close();
-
-    // 2. Send notification
-    $message = "🎉 You have been approved! You can now log in and start teaching.";
-    $stmt = $conn->prepare("INSERT INTO messages (user_id, message, created_at) VALUES (?, ?, NOW())");
-    $stmt->bind_param("is", $user_id, $message);
-    $stmt->execute();
-    $stmt->close();
-
-    $approved_success = "✅ Teacher approved successfully!";
+// Success or error message from redirect
+$approved_success = '';
+if (isset($_GET['success'])) {
+    $approved_success = "✅ Teacher approved and email sent successfully!";
+}
+if (isset($_GET['email_error'])) {
+    $approved_success = "✅ Teacher approved, but email failed to send: " . htmlspecialchars($_GET['email_error']);
 }
 
 // Fetch unapproved teachers
@@ -61,7 +50,7 @@ $result = $conn->query($query);
     }
 
     .approval-table tr:hover {
-      background-color:rgb(43, 8, 8);
+      background-color: rgb(43, 8, 8);
     }
 
     .btn-approve {
@@ -78,13 +67,26 @@ $result = $conn->query($query);
       background-color: #219150;
     }
 
-    .success, .info {
+    .message-box {
       margin-top: 20px;
       background-color: #dff0d8;
       color: #3c763d;
-      padding: 12px 20px;
-      border-radius: 5px;
+      padding: 15px 20px;
+      border-left: 5px solid #3c763d;
+      border-radius: 6px;
       font-weight: bold;
+      animation: fadeIn 0.7s ease-in-out;
+    }
+
+    .info {
+      background-color: #e3f2fd;
+      color: #0d47a1;
+      border-left: 5px solid #0d47a1;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to   { opacity: 1; transform: translateY(0); }
     }
   </style>
 </head>
@@ -120,8 +122,8 @@ $result = $conn->query($query);
       <main class="dashboard">
         <h2><i class="fas fa-user-check"></i> Pending Teacher Approvals</h2>
 
-        <?php if (isset($approved_success)): ?>
-          <div class="success"><?= $approved_success ?></div>
+        <?php if (!empty($approved_success)): ?>
+          <div class="message-box"><?= $approved_success ?></div>
         <?php endif; ?>
 
         <?php if ($result->num_rows > 0): ?>
@@ -149,7 +151,8 @@ $result = $conn->query($query);
                   <td><?= htmlspecialchars($row['qualification']) ?></td>
                   <td><?= htmlspecialchars($row['specialization']) ?></td>
                   <td>
-                    <form method="POST" action="approve_teachers_action.php">                      <input type="hidden" name="user_id" value="<?= $row['user_id'] ?>">
+                    <form method="POST" action="approve_teachers_action.php">
+                      <input type="hidden" name="user_id" value="<?= $row['user_id'] ?>">
                       <button type="submit" name="approve_teacher" class="btn-approve">
                         <i class="fas fa-check-circle"></i> Approve
                       </button>
@@ -160,7 +163,7 @@ $result = $conn->query($query);
             </tbody>
           </table>
         <?php else: ?>
-          <p class="info">🎓 All teachers are approved. No pending approvals.</p>
+          <p class="message-box info">🎓 All teachers are approved. No pending approvals.</p>
         <?php endif; ?>
       </main>
 

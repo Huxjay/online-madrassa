@@ -132,11 +132,16 @@ body {
     flex-grow: 1;
 }
 
-.dashboard h1,
+.dashboard h1,h2{
+    color: #fff;
+}
 .dashboard p {
     color: #fff;
     text-shadow: 0 2px 5px rgba(0, 0, 0, 0.6);
 }
+
+
+
 
 /* Footer */
 .footer {
