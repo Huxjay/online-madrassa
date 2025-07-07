@@ -2,12 +2,14 @@
 // -------------------------------
 // Secure Session Initialization
 // -------------------------------
-ini_set('session.use_strict_mode', 1);
-ini_set('session.cookie_httponly', 1); // Prevent JS access to cookies
-ini_set('session.cookie_secure', isset($_SERVER['HTTPS'])); // Only if HTTPS
-ini_set('session.use_only_cookies', 1); // Only allow cookies
 
+// These must be set BEFORE session_start
 if (session_status() === PHP_SESSION_NONE) {
+    ini_set('session.use_strict_mode', 1);
+    ini_set('session.cookie_httponly', 1); // Prevent JS access to cookies
+    ini_set('session.cookie_secure', isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off'); // Only if HTTPS
+    ini_set('session.use_only_cookies', 1);
+
     session_start();
 }
 
@@ -30,7 +32,6 @@ if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'parent') {
 // Auto Logout After 15 Minutes
 // -------------------------------
 $timeout = 900; // 15 minutes
-
 if (isset($_SESSION['LAST_ACTIVITY']) && (time() - $_SESSION['LAST_ACTIVITY']) > $timeout) {
     session_unset();
     session_destroy();

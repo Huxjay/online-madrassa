@@ -12,7 +12,6 @@
 </head>
 <body>
 
-  <!-- Background Image Layer -->
   <div class="bg-layer"></div>
 
   <div class="parent-container" id="parentContainer">
@@ -21,11 +20,11 @@
       <div class="logo"><i class="fas fa-mosque"></i> Madrassa</div>
       <nav>
         <ul>
-          <li><a href="#"><i class="fas fa-child"></i> My Children</a></li>
+          <li><a href="index.php?page=my_children"><i class="fas fa-child"></i> My children</a></li>
           <li><a href="#"><i class="fas fa-video"></i> Online Classes</a></li>
           <li><a href="#"><i class="fas fa-comments"></i> Live Chat</a></li>
           <li><a href="#"><i class="fas fa-cogs"></i> Learning Preference</a></li>
-          <li><a href="../includes/logout.php"><i class="fas fa-sign-out-alt"></i>Logout</a></li>
+          <li><a href="../includes/logout.php"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
         </ul>
       </nav>
     </aside>
@@ -40,16 +39,63 @@
       </header>
 
       <main class="dashboard">
-        <h1>Welcome, <?php echo $_SESSION['user_name']; ?> 👋</h1>
-        <p>Manage your children’s progress and activities.</p>
+        <?php
+          $page = $_GET['page'] ?? 'home';
+          switch ($page) {
+            case 'my_children':
+              include 'my_children.php';
+              break;
+            default:
+              echo "<h1>Welcome, {$_SESSION['user_name']} 👋</h1><p>Manage your children’s progress and activities.</p>";
+          }
+        ?>
       </main>
 
       <footer class="footer">
-        <p>&copy; 2025 Online Madrassa | Parent Panel</p>
+        <p>&copy; <?= date('Y') ?> Online Madrassa | Parent Panel</p>
       </footer>
     </div>
   </div>
 
+
+  <script>
+    // Load dynamic sections via AJAX
+    document.querySelectorAll('[data-section]').forEach(link => {
+      link.addEventListener('click', function(e) {
+        e.preventDefault();
+        const section = this.getAttribute('data-section');
+
+        fetch(section)
+          .then(res => res.text())
+          .then(html => {
+            const container = document.getElementById('main-content-area');
+            container.innerHTML = html;
+            container.classList.add('fade-in');
+            setTimeout(() => container.classList.remove('fade-in'), 500);
+          })
+          .catch(err => {
+            document.getElementById('main-content-area').innerHTML = "<p>Error loading content.</p>";
+            console.error(err);
+          });
+      });
+    });
+
+    function toggleSidebar() {
+      document.getElementById('sidebar').classList.toggle('collapsed');
+    }
+
+    function toggleDarkMode() {
+      document.body.classList.toggle('dark-mode');
+    }
+  </script>
+
   <script src="../assets/js/parent.js"></script>
 </body>
 </html>
+
+
+
+
+
+
+  

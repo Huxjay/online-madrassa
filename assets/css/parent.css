@@ -184,8 +184,67 @@ body.dark-mode .sidebar {
     background: rgba(0, 0, 0, 0.7);
 }
 
+
+.approval-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(5px);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.approval-table th, .approval-table td {
+  padding: 12px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  color: #fff;
+  text-align: left;
+}
+
+.approval-table th {
+  background-color: rgba(0, 0, 0, 0.3);
+  color: #f8b400;
+}
+
+
+
+.btn-approve {
+  padding: 6px 12px;
+  background-color: #27ae60;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.btn-approve:hover {
+  background-color: #1e8449;
+}
+
+
+
+.info {
+  padding: 15px;
+  margin-top: 20px;
+  text-align: center;
+  color: #eee;
+  background: rgba(255, 255, 255, 0.08);
+  border-left: 4px solid #2196f3;
+  border-radius: 6px;
+  font-style: italic;
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+
 /* Animations */
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(15px); }
     to { opacity: 1; transform: translateY(0); }
 }
+
+
+
+
+
