@@ -32,9 +32,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $user_id = $stmt->insert_id;
     $stmt->close();
 
-    // 3. Insert into teachers
-    $stmt = $conn->prepare("INSERT INTO teachers (user_id, gender, age, phone, qualification, specialization) VALUES (?, ?, ?, ?, ?, ?)");
-    $stmt->bind_param("isisss", $user_id, $gender, $age, $phone, $qualification, $specialization);
+    // 3. Handle image upload
+    $upload_dir = 'uploads/teachers/';
+    if (!is_dir($upload_dir)) {
+        mkdir($upload_dir, 0777, true);
+    }
+
+    $profile_picture = 'default.png'; // default if no upload
+    if (!empty($_FILES['profile_picture']['name'])) {
+        $ext = pathinfo($_FILES['profile_picture']['name'], PATHINFO_EXTENSION);
+        $filename = uniqid() . '.' . $ext;
+        $filepath = $upload_dir . $filename;
+
+        if (move_uploaded_file($_FILES['profile_picture']['tmp_name'], $filepath)) {
+            $profile_picture = $filename;
+        }
+    }
+
+    // 4. Insert into teachers
+    $stmt = $conn->prepare("INSERT INTO teachers (user_id, gender, age, phone, qualification, specialization, profile_picture) VALUES (?, ?, ?, ?, ?, ?, ?)");
+    $stmt->bind_param("isissss", $user_id, $gender, $age, $phone, $qualification, $specialization, $profile_picture);
     $stmt->execute();
     $stmt->close();
 
@@ -162,6 +179,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           <i class="fas fa-book"></i>
           <input type="text" name="specialization" placeholder="Specialization" required>
         </div>
+
+    
+        <div class="input-group">
+        <i class="fas fa-image"></i>
+        <input type="file" name="profile_picture" accept="image/*" required />
+       </div>
 
         <button type="submit" class="submit-btn">Register</button>
       </form>

@@ -24,7 +24,7 @@ header("Pragma: no-cache");
 // Access Control: Only Parents
 // -------------------------------
 if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'parent') {
-    header("Location: ../index.html");
+    header("Location: ../index.php");
     exit();
 }
 

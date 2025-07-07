@@ -93,31 +93,7 @@ $result = $conn->query($query);
 <body>
   <div class="bg-layer"></div>
 
-  <div class="admin-container">
-    <!-- Sidebar -->
-    <aside class="sidebar" id="sidebar">
-      <div class="logo">📚 Madrassa</div>
-      <nav>
-        <ul>
-          <li><a href="index.php"><i class="fas fa-home"></i> Dashboard</a></li>
-          <li><a href="#"><i class="fas fa-users"></i> Users</a></li>
-          <li><a href="teachers_list.php"><i class="fas fa-chalkboard-teacher"></i> Teachers</a></li>
-          <li><a href="approve_teachers.php" class="active"><i class="fas fa-user-check"></i> Approvals</a></li>
-          <li><a href="#"><i class="fas fa-child"></i> Students</a></li>
-          <li><a href="#"><i class="fas fa-book"></i> Classes</a></li>
-          <li><a href="../includes/logout.php"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
-        </ul>
-      </nav>
-    </aside>
-
-    <!-- Main Content -->
-    <div class="main-content">
-      <header class="header">
-        <button class="toggle-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
-        <div class="right-actions">
-          <button class="dark-mode-toggle" onclick="toggleDarkMode()"><i class="fas fa-moon"></i></button>
-        </div>
-      </header>
+  
 
       <main class="dashboard">
         <h2><i class="fas fa-user-check"></i> Pending Teacher Approvals</h2>
@@ -167,10 +143,7 @@ $result = $conn->query($query);
         <?php endif; ?>
       </main>
 
-      <footer class="footer">
-        <p>&copy; 2025 Online Madrassa. All rights reserved.</p>
-      </footer>
-    </div>
+      </div>
   </div>
 
   <script src="../assets/js/admin.js"></script>
