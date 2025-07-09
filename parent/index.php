@@ -23,7 +23,7 @@
           <li><a href="index.php?page=my_children"><i class="fas fa-child"></i> My children</a></li>
           <li><a href="#"><i class="fas fa-video"></i> Online Classes</a></li>
           <li><a href="#"><i class="fas fa-comments"></i> Live Chat</a></li>
-          <li><a href="#"><i class="fas fa-cogs"></i> Learning Preference</a></li>
+          <li><a href="index.php?page=learning_preference"><i class="fas fa-cogs"></i> Learning Preference</a></li>
           <li><a href="../includes/logout.php"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
         </ul>
       </nav>
@@ -45,6 +45,10 @@
             case 'my_children':
               include 'my_children.php';
               break;
+
+          case 'learning_preference':
+              include 'learning_preference.php';
+              break;    
             default:
               echo "<h1>Welcome, {$_SESSION['user_name']} 👋</h1><p>Manage your children’s progress and activities.</p>";
           }

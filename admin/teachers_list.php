@@ -18,9 +18,9 @@ $result = $conn->query($sql);
 <div class="teacher-cards-container">
 <?php while ($row = $result->fetch_assoc()): ?>
   <?php
-    // Count students assigned to this teacher (if any mapping table exists)
     $user_id = $row['user_id'];
 
+    // Count assigned students and parents
     $studentsQuery = $conn->query("SELECT COUNT(*) AS count FROM students WHERE assigned_teacher_id = $user_id");
     $studentCount = $studentsQuery ? $studentsQuery->fetch_assoc()['count'] : 0;
 
@@ -31,13 +31,14 @@ $result = $conn->query($sql);
     ");
     $parentCount = $parentsQuery ? $parentsQuery->fetch_assoc()['count'] : 0;
 
-    $photo = !empty($row['photo']) && file_exists("../uploads/teachers/" . $row['photo']) 
-             ? "../uploads/teachers/" . $row['photo'] 
-             : "../uploads/teachers/default.png";
+    // Corrected profile picture usage
+    $filename = htmlspecialchars($row['profile_picture']);
+    $path = "../uploads/teachers/" . $filename;
+    $photo = (!empty($filename) && file_exists($path)) ? $path : "../uploads/teachers/default.png";
   ?>
 
   <div class="teacher-card" onclick="toggleSummary(this)">
-    <img src="<?= htmlspecialchars($photo) ?>" alt="Teacher Photo">
+    <img src="<?= $photo ?>" alt="Teacher Photo">
     <h3><?= htmlspecialchars($row['name']) ?></h3>
     <p><strong>📍 Location:</strong> <?= htmlspecialchars($row['location']) ?></p>
     <p><strong>🎓 Qualification:</strong> <?= htmlspecialchars($row['qualification']) ?></p>

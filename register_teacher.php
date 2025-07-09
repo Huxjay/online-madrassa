@@ -38,14 +38,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         mkdir($upload_dir, 0777, true);
     }
 
-    $profile_picture = 'default.png'; // default if no upload
-    if (!empty($_FILES['profile_picture']['name'])) {
-        $ext = pathinfo($_FILES['profile_picture']['name'], PATHINFO_EXTENSION);
-        $filename = uniqid() . '.' . $ext;
-        $filepath = $upload_dir . $filename;
+    $profile_picture = 'default.png';
 
-        if (move_uploaded_file($_FILES['profile_picture']['tmp_name'], $filepath)) {
-            $profile_picture = $filename;
+    if (isset($_FILES['profile_picture']) && $_FILES['profile_picture']['error'] === UPLOAD_ERR_OK) {
+        $tmp = $_FILES['profile_picture']['tmp_name'];
+        $originalName = basename($_FILES['profile_picture']['name']);
+        $ext = strtolower(pathinfo($originalName, PATHINFO_EXTENSION));
+
+        // Optional: validate extension
+        $allowed_ext = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+        if (in_array($ext, $allowed_ext)) {
+            $newName = uniqid('teacher_') . '.' . $ext;
+            $target_path = $upload_dir . $newName;
+
+            if (move_uploaded_file($tmp, $target_path)) {
+                $profile_picture = $newName;
+            }
         }
     }
 
@@ -128,7 +136,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div class="form-box">
       <h2><i class="fas fa-chalkboard-teacher"></i> Register as Teacher</h2>
 
-      <form method="POST" action="">
+      <form method="POST" action="" enctype="multipart/form-data">
         <div class="input-group">
           <i class="fas fa-user"></i>
           <input type="text" name="name" placeholder="Full Name" required>

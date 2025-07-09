@@ -237,6 +237,81 @@ body.dark-mode .sidebar {
   animation: fadeIn 0.5s ease-in-out;
 }
 
+/* === Learning Preferences Styles === */
+
+.preference-form {
+  background: rgba(255,255,255,0.05);
+  padding: 25px;
+  border-radius: 10px;
+  margin-top: 25px;
+  max-width: 600px;
+  box-shadow: 0 0 15px rgba(0,0,0,0.1);
+}
+
+.preference-form h2 {
+  color: #fff;
+  margin-bottom: 20px;
+}
+
+.preference-form .input-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 15px;
+  color: #ffffff;
+}
+
+.preference-form .input-group label {
+  margin-bottom: 6px;
+  font-weight: 600;
+}
+
+.preference-form .input-group select,
+.preference-form .input-group input {
+  padding: 10px;
+  border: none;
+  border-radius: 6px;
+  background: rgba(255,255,255,0.1);
+  color: #ffffff;
+  font-size: 15px;
+}
+
+.preference-form .input-group select:focus,
+.preference-form .input-group input:focus {
+  outline: 2px solid #f8b400;
+}
+
+.preference-form .submit-btn {
+  background: #27ae60;
+  border: none;
+  color: white;
+  padding: 12px 20px;
+  border-radius: 6px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  margin-top: 10px;
+}
+
+.preference-form .submit-btn:hover {
+  background: #219150;
+}
+
+.success-message {
+  display: none;
+  color: #2ecc71;
+  font-weight: bold;
+  margin-top: 15px;
+  background: rgba(46, 204, 113, 0.1);
+  padding: 10px 15px;
+  border-radius: 6px;
+}
+
+#teacherDropdown {
+  padding: 10px;
+  border-radius: 6px;
+  width: 100%;
+  font-size: 1rem;
+}
 
 /* Animations */
 @keyframes fadeIn {
