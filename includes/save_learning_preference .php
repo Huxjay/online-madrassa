@@ -7,12 +7,11 @@ $teacher_id = $_POST['assigned_teacher_id'];
 $mode = $_POST['learning_mode'];
 $join_meetings = $_POST['join_meetings'];
 
-// Update assigned teacher
-$conn->query("UPDATE students SET assigned_teacher_id = $teacher_id WHERE id = $student_id");
-
-// Save mode and meetings (optional: you can add a preferences table)
-$conn->query("UPDATE students SET learning_mode = '$mode', join_meetings = $join_meetings WHERE id = $student_id");
-
-// (Optional: add feedback, email, or log entry)
+// Save everything in one update
+$stmt = $conn->prepare("UPDATE students SET assigned_teacher_id = ?, learning_mode = ?, join_meetings = ? WHERE id = ?");
+$stmt->bind_param("issi", $teacher_id, $mode, $join_meetings, $student_id);
+$stmt->execute();
+$stmt->close();
 
 echo "success";
+?>

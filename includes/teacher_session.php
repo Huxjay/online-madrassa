@@ -22,7 +22,7 @@ header("Pragma: no-cache");
 // Access Control: Only Teachers
 // -------------------------------
 if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'teacher') {
-    header("Location: ../../index.html");
+    header("Location: ../login.php");
     exit();
 }
 
@@ -34,7 +34,7 @@ $timeout = 900; // 15 minutes
 if (isset($_SESSION['LAST_ACTIVITY']) && (time() - $_SESSION['LAST_ACTIVITY']) > $timeout) {
     session_unset();
     session_destroy();
-    header("Location: ../../index.html?timeout=1");
+    header("Location: ../login.php?timeout=1");
     exit();
 }
 $_SESSION['LAST_ACTIVITY'] = time();

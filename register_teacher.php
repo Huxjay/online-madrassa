@@ -11,19 +11,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $age = $_POST['age'];
     $phone = $_POST['phone'];
     $qualification = $_POST['qualification'];
-    $specialization = $_POST['specialization'];
+    $specializations = implode(',', $_POST['specialization']);
     $location_name = $_POST['location'];
     $latitude = $_POST['latitude'];
     $longitude = $_POST['longitude'];
+    $district = $_POST['district'];
+    $street = $_POST['street'];
 
-    // 1. Insert location
+    // Insert location
     $stmt = $conn->prepare("INSERT INTO locations (name, latitude, longitude) VALUES (?, ?, ?)");
     $stmt->bind_param("sdd", $location_name, $latitude, $longitude);
     $stmt->execute();
     $location_id = $stmt->insert_id;
     $stmt->close();
 
-    // 2. Insert into users
+    // Insert into users
     $role = 'teacher';
     $approved = 0;
     $stmt = $conn->prepare("INSERT INTO users (name, email, password, role, location_id, approved) VALUES (?, ?, ?, ?, ?, ?)");
@@ -32,11 +34,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $user_id = $stmt->insert_id;
     $stmt->close();
 
-    // 3. Handle image upload
+    // Image upload
     $upload_dir = 'uploads/teachers/';
-    if (!is_dir($upload_dir)) {
-        mkdir($upload_dir, 0777, true);
-    }
+    if (!is_dir($upload_dir)) mkdir($upload_dir, 0777, true);
 
     $profile_picture = 'default.png';
 
@@ -44,9 +44,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $tmp = $_FILES['profile_picture']['tmp_name'];
         $originalName = basename($_FILES['profile_picture']['name']);
         $ext = strtolower(pathinfo($originalName, PATHINFO_EXTENSION));
-
-        // Optional: validate extension
         $allowed_ext = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+
         if (in_array($ext, $allowed_ext)) {
             $newName = uniqid('teacher_') . '.' . $ext;
             $target_path = $upload_dir . $newName;
@@ -57,9 +56,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    // 4. Insert into teachers
-    $stmt = $conn->prepare("INSERT INTO teachers (user_id, gender, age, phone, qualification, specialization, profile_picture) VALUES (?, ?, ?, ?, ?, ?, ?)");
-    $stmt->bind_param("isissss", $user_id, $gender, $age, $phone, $qualification, $specialization, $profile_picture);
+    // Insert into teachers
+    $stmt = $conn->prepare("INSERT INTO teachers (user_id, gender, age, phone, qualification, specialization, district, street, profile_picture)
+                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+    $stmt->bind_param("isissssss", $user_id, $gender, $age, $phone, $qualification, $specializations, $district, $street, $profile_picture);
     $stmt->execute();
     $stmt->close();
 
@@ -87,7 +87,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       background: rgba(0, 0, 0, 0.6);
       animation: fadeIn 0.4s ease-in-out;
     }
-
     .modal-content {
       background: white;
       padding: 30px;
@@ -98,33 +97,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       max-width: 400px;
       width: 90%;
     }
-
-    .modal-content h2 {
-      margin-top: 0;
-      color: #27ae60;
-    }
-
+    .modal-content h2 { color: #27ae60; }
     .modal-content button {
       padding: 10px 20px;
-      border: none;
       background: #27ae60;
       color: white;
-      font-weight: bold;
+      border: none;
       border-radius: 8px;
+      font-weight: bold;
       margin-top: 20px;
       cursor: pointer;
-      transition: background 0.3s;
     }
-
-    .modal-content button:hover {
-      background: #219150;
-    }
-
+    .modal-content button:hover { background: #219150; }
     @keyframes popUp {
       from { transform: scale(0.8); opacity: 0; }
       to { transform: scale(1); opacity: 1; }
     }
-
     @keyframes fadeIn {
       from { opacity: 0; }
       to { opacity: 1; }
@@ -157,6 +145,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           <input type="text" name="location" id="location" placeholder="Detecting location..." readonly required>
           <input type="hidden" name="latitude" id="latitude">
           <input type="hidden" name="longitude" id="longitude">
+          <input type="hidden" name="district" id="district">
+          <input type="hidden" name="street" id="street">
         </div>
 
         <div class="input-group">
@@ -178,21 +168,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           <input type="text" name="phone" placeholder="Phone Number" required>
         </div>
 
-        <div class="input-group">
-          <i class="fas fa-certificate"></i>
-          <input type="text" name="qualification" placeholder="Qualification" required>
+        <h3><i class="fas fa-certificate"></i> Qualifications</h3>
+        <div class="input-group" style="display:block;">
+          <?php
+          $qualifications = [
+            "Maktab Certificate", "Hifdh al-Qur'an", "Tajweed Certification", "Alimiyyah (Aalim/Aalimah)",
+            "Fazil / Dars-e-Nizami", "Ijazah (in Hadith/Quran)", "Mufti Course (Takhassus fi al-Fiqh)",
+            "Bachelor in Islamic Studies (BA)", "Masters in Islamic Studies (MA)", "PhD in Islamic Sciences"
+          ];
+          foreach ($qualifications as $q):
+          ?>
+          <label><input type="radio" name="qualification" value="<?= $q ?>" required> <?= $q ?></label><br>
+          <?php endforeach; ?>
+        </div>
+
+        <h3><i class="fas fa-book-open"></i> Areas of Specialization</h3>
+        <div class="input-group" style="display:block;">
+          <?php
+          $subjects = ["Tajweed", "Hifdh", "Tilawah", "Hadith", "Fiqh", "Aqidah", "Seerah", "Tafsir"];
+          foreach ($subjects as $s):
+          ?>
+          <label><input type="checkbox" name="specialization[]" value="<?= $s ?>"> <?= $s ?></label><br>
+          <?php endforeach; ?>
         </div>
 
         <div class="input-group">
-          <i class="fas fa-book"></i>
-          <input type="text" name="specialization" placeholder="Specialization" required>
+          <i class="fas fa-image"></i>
+          <input type="file" name="profile_picture" accept="image/*" required />
         </div>
-
-    
-        <div class="input-group">
-        <i class="fas fa-image"></i>
-        <input type="file" name="profile_picture" accept="image/*" required />
-       </div>
 
         <button type="submit" class="submit-btn">Register</button>
       </form>
@@ -200,43 +203,44 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   </div>
 
   <?php if ($success): ?>
-  <div id="successModal" class="modal">
-    <div class="modal-content">
-      <h2>✅ Registration Successful</h2>
-      <p>Please wait for admin approval before logging in.</p>
-      <button onclick="closeModal()">OK</button>
+    <div id="successModal" class="modal">
+      <div class="modal-content">
+        <h2>✅ Registration Successful</h2>
+        <p>Please wait for admin approval before logging in.</p>
+        <button onclick="closeModal()">OK</button>
+      </div>
     </div>
-  </div>
   <?php endif; ?>
 
   <script>
     function closeModal() {
-      document.getElementById("successModal").style.display = "none";
-    }
-
-    // Geolocation and reverse geocoding
+  window.location.href = "login.php"; // or "index.html" based on your system
+}
+    // Geolocation
     window.onload = function () {
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(function (position) {
           const lat = position.coords.latitude;
           const lon = position.coords.longitude;
-
-          document.getElementById('latitude').value = lat;
-          document.getElementById('longitude').value = lon;
+          document.getElementById("latitude").value = lat;
+          document.getElementById("longitude").value = lon;
 
           fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`)
             .then(res => res.json())
             .then(data => {
-              document.getElementById('location').value = data.display_name || 'Location Found';
+              const addr = data.address || {};
+              document.getElementById("location").value = data.display_name || "Location found";
+              document.getElementById("district").value = addr.county || addr.state_district || "";
+              document.getElementById("street").value = addr.road || addr.suburb || "";
             })
             .catch(() => {
-              document.getElementById('location').value = 'Could not fetch location';
+              document.getElementById("location").value = "Could not fetch location";
             });
         }, () => {
-          document.getElementById('location').value = 'Location permission denied';
+          document.getElementById("location").value = "Location permission denied";
         });
       } else {
-        document.getElementById('location').value = 'Geolocation not supported';
+        document.getElementById("location").value = "Geolocation not supported";
       }
     };
   </script>

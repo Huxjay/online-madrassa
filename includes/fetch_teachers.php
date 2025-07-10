@@ -13,35 +13,39 @@ if (!$parent_id || !$specialization || !$mode) {
   exit;
 }
 
-// Get parent's location_id
-$locationResult = $conn->query("SELECT location_id FROM users WHERE id = $parent_id");
-$locationData = $locationResult->fetch_assoc();
-$location_id = $locationData['location_id'] ?? null;
+// Get parent's district
+$districtQuery = $conn->query("
+  SELECT l.district
+  FROM users u
+  JOIN locations l ON u.location_id = l.id
+  WHERE u.id = $parent_id
+");
+$districtData = $districtQuery->fetch_assoc();
+$district = $districtData['district'] ?? null;
 
-// Build query
+// Base SQL
 $sql = "
   SELECT u.id AS id, u.name AS name, t.specialization AS specialization
   FROM users u
   JOIN teachers t ON u.id = t.user_id
+  JOIN locations l ON u.location_id = l.id
   WHERE u.role = 'teacher'
     AND u.approved = 1
-    AND t.specialization = ?
+    AND t.specialization LIKE CONCAT('%', ?, '%')
 ";
 
+// If mode is not online, filter by district
 $params = [$specialization];
+$types = "s";
 
-if ($mode !== 'online' && $location_id) {
-  $sql .= " AND u.location_id = ?";
-  $params[] = $location_id;
+if ($mode !== 'online' && $district) {
+  $sql .= " AND l.district = ?";
+  $params[] = $district;
+  $types .= "s";
 }
 
 $stmt = $conn->prepare($sql);
-if (count($params) === 2) {
-  $stmt->bind_param("si", $params[0], $params[1]);
-} else {
-  $stmt->bind_param("s", $params[0]);
-}
-
+$stmt->bind_param($types, ...$params);
 $stmt->execute();
 $result = $stmt->get_result();
 
