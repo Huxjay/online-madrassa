@@ -1,58 +1,74 @@
 <?php
 include('db.php');
 session_start();
-
 header('Content-Type: application/json');
 
-$specialization = $_GET['specialization'] ?? '';
-$mode = $_GET['mode'] ?? '';
+// Debugging
+// ini_set('display_errors', 1); error_reporting(E_ALL);
+
+$specialization = trim($_GET['specialization'] ?? '');
+$mode = trim($_GET['mode'] ?? '');
 $parent_id = $_SESSION['user_id'] ?? null;
 
-if (!$parent_id || !$specialization || !$mode) {
+if (!$parent_id || $specialization === '' || $mode === '') {
   echo json_encode([]);
   exit;
 }
 
-// Get parent's district
-$districtQuery = $conn->query("
+// === Get Parent District ===
+$district = null;
+$districtStmt = $conn->prepare("
   SELECT l.district
   FROM users u
   JOIN locations l ON u.location_id = l.id
-  WHERE u.id = $parent_id
+  WHERE u.id = ?
 ");
-$districtData = $districtQuery->fetch_assoc();
-$district = $districtData['district'] ?? null;
+$districtStmt->bind_param("i", $parent_id);
+$districtStmt->execute();
+$districtResult = $districtStmt->get_result();
+if ($row = $districtResult->fetch_assoc()) {
+  $district = $row['district'];
+}
+$districtStmt->close();
 
-// Base SQL
+// === Build SQL Query ===
 $sql = "
-  SELECT u.id AS id, u.name AS name, t.specialization AS specialization
+  SELECT u.id, u.name, t.specialization
   FROM users u
   JOIN teachers t ON u.id = t.user_id
   JOIN locations l ON u.location_id = l.id
   WHERE u.role = 'teacher'
     AND u.approved = 1
-    AND t.specialization LIKE CONCAT('%', ?, '%')
+    AND FIND_IN_SET(?, t.specialization)
 ";
 
-// If mode is not online, filter by district
 $params = [$specialization];
 $types = "s";
 
+// Add district filter if NOT online mode
 if ($mode !== 'online' && $district) {
-  $sql .= " AND l.district = ?";
+  $sql .= " AND LOWER(l.district) = LOWER(?)";
   $params[] = $district;
   $types .= "s";
 }
 
 $stmt = $conn->prepare($sql);
+if (!$stmt) {
+  echo json_encode(["error" => "Failed to prepare SQL"]);
+  exit;
+}
+
 $stmt->bind_param($types, ...$params);
 $stmt->execute();
 $result = $stmt->get_result();
 
 $teachers = [];
-while ($row = $result->fetch_assoc()) {
-  $teachers[] = $row;
+while ($teacher = $result->fetch_assoc()) {
+  $teachers[] = [
+    'id' => $teacher['id'],
+    'name' => $teacher['name'],
+    'specialization' => $teacher['specialization']
+  ];
 }
 
 echo json_encode($teachers);
-?>
