@@ -3,9 +3,6 @@ include('db.php');
 session_start();
 header('Content-Type: application/json');
 
-// Debugging
-// ini_set('display_errors', 1); error_reporting(E_ALL);
-
 $specialization = trim($_GET['specialization'] ?? '');
 $mode = trim($_GET['mode'] ?? '');
 $parent_id = $_SESSION['user_id'] ?? null;
@@ -15,7 +12,7 @@ if (!$parent_id || $specialization === '' || $mode === '') {
   exit;
 }
 
-// === Get Parent District ===
+// Get parent's district
 $district = null;
 $districtStmt = $conn->prepare("
   SELECT l.district
@@ -25,15 +22,15 @@ $districtStmt = $conn->prepare("
 ");
 $districtStmt->bind_param("i", $parent_id);
 $districtStmt->execute();
-$districtResult = $districtStmt->get_result();
-if ($row = $districtResult->fetch_assoc()) {
+$result = $districtStmt->get_result();
+if ($row = $result->fetch_assoc()) {
   $district = $row['district'];
 }
 $districtStmt->close();
 
-// === Build SQL Query ===
+// Fetch teachers
 $sql = "
-  SELECT u.id, u.name, t.specialization
+  SELECT u.id, u.name, t.specialization, t.profile_picture
   FROM users u
   JOIN teachers t ON u.id = t.user_id
   JOIN locations l ON u.location_id = l.id
@@ -45,7 +42,6 @@ $sql = "
 $params = [$specialization];
 $types = "s";
 
-// Add district filter if NOT online mode
 if ($mode !== 'online' && $district) {
   $sql .= " AND LOWER(l.district) = LOWER(?)";
   $params[] = $district;
@@ -53,11 +49,6 @@ if ($mode !== 'online' && $district) {
 }
 
 $stmt = $conn->prepare($sql);
-if (!$stmt) {
-  echo json_encode(["error" => "Failed to prepare SQL"]);
-  exit;
-}
-
 $stmt->bind_param($types, ...$params);
 $stmt->execute();
 $result = $stmt->get_result();
@@ -67,7 +58,10 @@ while ($teacher = $result->fetch_assoc()) {
   $teachers[] = [
     'id' => $teacher['id'],
     'name' => $teacher['name'],
-    'specialization' => $teacher['specialization']
+    'specialization' => $teacher['specialization'],
+    'picture' => $teacher['profile_picture']
+      ? "/online-madrassa/uploads/teachers/" . $teacher['profile_picture']
+      : "/online-madrassa/assets/img/default.png"
   ];
 }
 

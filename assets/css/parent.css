@@ -396,6 +396,14 @@ body.dark-mode .sidebar {
   background-color: #0056b3;
 }
 
+.teacher-preview {
+  text-align: center;
+  margin-top: 10px;
+}
+.teacher-preview img {
+  box-shadow: 0 0 5px rgba(0,0,0,0.3);
+}
+
 /* Success message */
 .success-message {
   margin-top: 10px;

@@ -18,12 +18,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $district = $_POST['district'];
     $street = $_POST['street'];
 
-    // Insert location
-    $stmt = $conn->prepare("INSERT INTO locations (name, latitude, longitude) VALUES (?, ?, ?)");
-    $stmt->bind_param("sdd", $location_name, $latitude, $longitude);
-    $stmt->execute();
-    $location_id = $stmt->insert_id;
-    $stmt->close();
+   // Insert location
+$stmt = $conn->prepare("INSERT INTO locations (name, latitude, longitude, district) VALUES (?, ?, ?, ?)");
+$stmt->bind_param("sdds", $location_name, $latitude, $longitude, $district);
+$stmt->execute();
+$location_id = $stmt->insert_id;
+$stmt->close();
 
     // Insert into users
     $role = 'teacher';

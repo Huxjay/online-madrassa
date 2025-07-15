@@ -20,11 +20,11 @@
       <div class="logo">📘 Madrassa</div>
       <nav>
         <ul>
-          <li><a href="#" class="active"><i class="fas fa-home"></i> Dashboard</a></li>
-          <li><a href="#"><i class="fas fa-book-reader"></i> My Classes</a></li>
-          <li><a href="#"><i class="fas fa-users"></i> Students</a></li>
-          <li><a href="#"><i class="fas fa-tasks"></i> Assignments</a></li>
-          <li><a href="#"><i class="fas fa-check-circle"></i> Attendance</a></li>
+          <li><a href="index.php" class="<?= !isset($_GET['page']) ? 'active' : '' ?>"><i class="fas fa-home"></i> Dashboard</a></li>
+          <li><a href="index.php?page=classes" class="<?= ($_GET['page'] ?? '') === 'classes' ? 'active' : '' ?>"><i class="fas fa-book-reader"></i> My Classes</a></li>
+          <li><a href="index.php?page=students" class="<?= ($_GET['page'] ?? '') === 'students' ? 'active' : '' ?>"><i class="fas fa-users"></i> Students</a></li>
+          <li><a href="index.php?page=assignments" class="<?= ($_GET['page'] ?? '') === 'assignments' ? 'active' : '' ?>"><i class="fas fa-tasks"></i> Assignments</a></li>
+          <li><a href="index.php?page=attendance" class="<?= ($_GET['page'] ?? '') === 'attendance' ? 'active' : '' ?>"><i class="fas fa-check-circle"></i> Attendance</a></li>
           <li><a href="../includes/logout.php"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
         </ul>
       </nav>
@@ -40,8 +40,27 @@
       </header>
 
       <main class="dashboard">
-        <h1>Welcome, <?= htmlspecialchars($_SESSION['user_name']) ?> 👋</h1>
-        <p>This is your teacher dashboard. You can manage classes, students, and assignments here.</p>
+        <?php
+        $page = $_GET['page'] ?? 'home';
+
+        switch ($page) {
+          case 'classes':
+              include 'classes.php';
+              break;
+          case 'students':
+              include 'students.php';
+              break;
+          case 'assignments':
+              include 'assignments.php';
+              break;
+          case 'attendance':
+              include 'attendance.php';
+              break;
+          default:
+              echo "<h1>Welcome, " . htmlspecialchars($_SESSION['user_name']) . " 👋</h1>";
+              echo "<p>This is your teacher dashboard. You can manage classes, students, and assignments here.</p>";
+        }
+        ?>
       </main>
 
       <footer class="footer">
