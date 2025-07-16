@@ -30,7 +30,6 @@ $has_children = $children->num_rows > 0;
       <select name="learning_mode" class="child-learning-mode" required>
         <option value="">-- Select Mode --</option>
         <option value="in_person">In-Person</option>
-        <option value="online">Online</option>
         <option value="home">Home-based</option>
       </select>
     </div>
@@ -79,7 +78,6 @@ $has_children = $children->num_rows > 0;
       <label>Learning Mode:</label>
       <select name="learning_mode" class="adult-learning-mode" required>
         <option value="">-- Select Mode --</option>
-        <option value="in_person">In-Person</option>
         <option value="online">Online</option>
         <option value="home">Home-based</option>
       </select>

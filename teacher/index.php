@@ -22,8 +22,7 @@
         <ul>
           <li><a href="index.php" class="<?= !isset($_GET['page']) ? 'active' : '' ?>"><i class="fas fa-home"></i> Dashboard</a></li>
           <li><a href="index.php?page=classes" class="<?= ($_GET['page'] ?? '') === 'classes' ? 'active' : '' ?>"><i class="fas fa-book-reader"></i> My Classes</a></li>
-          <li><a href="index.php?page=students" class="<?= ($_GET['page'] ?? '') === 'students' ? 'active' : '' ?>"><i class="fas fa-users"></i> Students</a></li>
-          <li><a href="index.php?page=assignments" class="<?= ($_GET['page'] ?? '') === 'assignments' ? 'active' : '' ?>"><i class="fas fa-tasks"></i> Assignments</a></li>
+          <li><a href="index.php?page=students" class="<?= ($_GET['page'] ?? '') === 'students' ? 'active' : '' ?>"><i class="fas fa-users"></i> Students & assigment</a></li>
           <li><a href="index.php?page=attendance" class="<?= ($_GET['page'] ?? '') === 'attendance' ? 'active' : '' ?>"><i class="fas fa-check-circle"></i> Attendance</a></li>
           <li><a href="../includes/logout.php"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
         </ul>
@@ -49,9 +48,6 @@
               break;
           case 'students':
               include 'students.php';
-              break;
-          case 'assignments':
-              include 'assignments.php';
               break;
           case 'attendance':
               include 'attendance.php';
