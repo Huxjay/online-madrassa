@@ -84,6 +84,8 @@
     <div class="logo"><i class="fas fa-mosque"></i> Madrassa</div>
     <nav>
       <ul>
+          <li><a href="index.php?page=myself" class="<?= ($_GET['page'] ?? '') === 'myself.php' ? 'active' : '' ?>"><i class="fas fa-user-graduate"></i> myself</a></li>
+
         <li><a href="index.php?page=my_children"><i class="fas fa-child"></i> My children</a></li>
         <li><a href="#"><i class="fas fa-video"></i> Online Classes</a></li>
         <li><a href="#"><i class="fas fa-comments"></i> Live Chat</a></li>
@@ -122,6 +124,10 @@
             break;
           case 'learning_preference':
             include 'learning_preference.php';
+            break;
+
+          case 'myself':
+            include 'myself.php';
             break;
           default:
             echo "<h1>Welcome, {$_SESSION['user_name']} 👋</h1><p>Manage your children’s progress and activities.</p>";
