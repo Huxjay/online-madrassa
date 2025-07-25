@@ -1,16 +1,14 @@
 <?php
 include('../includes/db.php');
-
 $parent_user_id = $_SESSION['user_id'] ?? 0;
-
 if (!$parent_user_id) {
   echo "Unauthorized";
   exit;
 }
 
-// ✅ Get parent profile info (with id)
+// ✅ Fetch parent profile data
 $stmt = $conn->prepare("
-  SELECT u.name, u.email, u.photo, p.gender, p.phone, p.age, l.name AS location, p.id AS parent_id
+  SELECT u.name, u.email, u.photo, p.gender, p.phone, p.age, l.name AS location, p.id as parent_id
   FROM users u
   JOIN parents p ON u.id = p.user_id
   LEFT JOIN locations l ON u.location_id = l.id
@@ -19,53 +17,58 @@ $stmt = $conn->prepare("
 $stmt->bind_param("i", $parent_user_id);
 $stmt->execute();
 $data = $stmt->get_result()->fetch_assoc();
-
 $parent_id = $data['parent_id'] ?? 0;
-$assignments = [];
 
-// ✅ Fetch child assignments
+// ✅ Get child IDs
 $childIds = [];
 $childRes = $conn->query("SELECT id FROM students WHERE parent_id = $parent_id");
 while ($row = $childRes->fetch_assoc()) {
   $childIds[] = $row['id'];
 }
 
+// ✅ Get adult learner ID
+$adultRes = $conn->prepare("SELECT id FROM adult_learners WHERE parent_id = ?");
+$adultRes->bind_param("i", $parent_user_id);
+$adultRes->execute();
+$adultResult = $adultRes->get_result()->fetch_assoc();
+$adultLearnerId = $adultResult['id'] ?? 0;
+
+// ✅ Get assignments
+$assignments = [];
+
 if (!empty($childIds)) {
   $idList = implode(',', $childIds);
-
-  $assignRes = $conn->query("
-    SELECT title, description, due_date, created_at, file_path, 'Child' AS who
+  $childAssign = $conn->query("
+    SELECT title, description, due_date, created_at, file_path
     FROM assignments
     WHERE student_id IN ($idList)
-
-    UNION
-
-    SELECT title, description, due_date, created_at, file_path, 'You' AS who
-    FROM assignments
-    WHERE student_id = $parent_id
-
     ORDER BY created_at DESC
   ");
-} else {
-  // No children, just parent's own assignments
-  $assignRes = $conn->query("
-    SELECT title, description, due_date, created_at, file_path, 'You' AS who
-    FROM assignments
-    WHERE student_id = $parent_id
-    ORDER BY created_at DESC
-  ");
+  while ($row = $childAssign->fetch_assoc()) {
+    $row['who'] = 'Child';
+    $assignments[] = $row;
+  }
 }
 
-// ✅ Collect results
-if ($assignRes) {
-  while ($a = $assignRes->fetch_assoc()) {
-    $assignments[] = $a;
+if ($adultLearnerId) {
+  $adultAssign = $conn->prepare("
+    SELECT title, description, due_date, created_at, file_path
+    FROM assignments
+    WHERE student_id = ?
+    ORDER BY created_at DESC
+  ");
+  $adultAssign->bind_param("i", $adultLearnerId);
+  $adultAssign->execute();
+  $adultRes = $adultAssign->get_result();
+  while ($row = $adultRes->fetch_assoc()) {
+    $row['who'] = 'You (Adult Learner)';
+    $assignments[] = $row;
   }
 }
 ?>
 
+<!-- ✅ Profile Section -->
 <h2>👤 My Profile</h2>
-
 <div class="profile-section">
   <form id="updateProfileForm" enctype="multipart/form-data">
     <div class="profile-photo">
@@ -91,39 +94,43 @@ if ($assignRes) {
   </form>
 </div>
 
+<!-- ✅ Assignments Section -->
 <h3>📘 Assignments (You & Your Children)</h3>
 <div class="assignment-list">
   <?php if (!empty($assignments)): ?>
     <?php foreach ($assignments as $a): ?>
       <div class="assignment-card">
         <h4><?= htmlspecialchars($a['title']) ?></h4>
-        <p><?= htmlspecialchars($a['description']) ?></p>
+        <p><?= nl2br(htmlspecialchars($a['description'])) ?></p>
 
-        <?php if (!empty($a['file_path'])): ?>
-          <?php 
-            $file = '../uploads/assignments/' . $a['file_path'];
-            $ext = strtolower(pathinfo($file, PATHINFO_EXTENSION));
-          ?>
-
-          <?php if (in_array($ext, ['jpg', 'jpeg', 'png', 'gif'])): ?>
-            <img src="<?= $file ?>" alt="Assignment Image" class="assignment-image">
-          <?php else: ?>
-            <p>📄 <a href="<?= $file ?>" target="_blank">View Attachment</a></p>
-          <?php endif; ?>
+        <?php if (!empty($a['file_path']) && file_exists('../' . $a['file_path'])): ?>
+          <div class="assignment-file">
+            <?php
+              $ext = pathinfo($a['file_path'], PATHINFO_EXTENSION);
+              if (in_array(strtolower($ext), ['jpg', 'jpeg', 'png', 'gif'])):
+            ?>
+              <img src="../<?= htmlspecialchars($a['file_path']) ?>" alt="Assignment Image">
+            <?php elseif (in_array(strtolower($ext), ['pdf'])): ?>
+              <embed src="../<?= htmlspecialchars($a['file_path']) ?>" type="application/pdf" width="100%" height="400px" />
+            <?php else: ?>
+              📎 <a href="../<?= htmlspecialchars($a['file_path']) ?>" download>📥 Download File</a>
+            <?php endif; ?>
+          </div>
         <?php endif; ?>
 
         <small>
           👤 <?= $a['who'] ?> |
-          📅 Due: <?= $a['due_date'] ?> |
-          🕒 Posted: <?= $a['created_at'] ?>
+          📅 Due: <?= htmlspecialchars($a['due_date']) ?> |
+          🕒 Posted: <?= htmlspecialchars($a['created_at']) ?>
         </small>
       </div>
     <?php endforeach; ?>
   <?php else: ?>
-    <p>No assignments found.</p>
+    <p class="no-assignments">No assignments found.</p>
   <?php endif; ?>
 </div>
 
+<!-- ✅ JS -->
 <script>
 document.getElementById("updateProfileForm").addEventListener("submit", function(e) {
   e.preventDefault();
@@ -146,141 +153,111 @@ document.getElementById("updateProfileForm").addEventListener("submit", function
 });
 </script>
 
+<!-- ✅ CSS -->
 <style>
-
-.assignment-list {
-  max-width: 600px;
-  margin: 30px auto;
-}
-.assignment-card {
-  background: #f5faff;
-  border: 1px solid #bbdefb;
-  padding: 15px;
-  margin-top: 12px;
-  border-radius: 8px;
-}
-.assignment-card h4 {
-  margin-bottom: 5px;
-  color: #1565c0;
-}
-.assignment-card small {
-  color: #555;
-}
-
-/* 🌙 Dark Glassy Profile Section */
 body {
-  font-family: 'Poppins', sans-serif;
+  font-family: 'Segoe UI', sans-serif;
+  background: #eef2f7;
+  margin: 0;
+  padding: 0 10px;
+}
+
+h2, h3 {
+  text-align: center;
+  color: #2c3e50;
+  margin-top: 30px;
 }
 
 .profile-section {
-  max-width: 600px;
-  margin: 30px auto;
-  background: rgba(255, 255, 255, 0.07);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: 15px;
-  padding: 30px;
-  color: #fff;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
-  animation: fadeIn 0.8s ease-in-out;
+  max-width: 500px;
+  margin: 20px auto;
+  background: #ffffff;
+  padding: 25px 30px;
+  border-radius: 12px;
+  box-shadow: 0 4px 25px rgba(0,0,0,0.08);
 }
 
-/* Profile Image */
 .profile-photo {
   text-align: center;
   margin-bottom: 20px;
 }
 .profile-photo img {
-  width: 120px;
-  height: 120px;
+  width: 130px;
+  height: 130px;
   border-radius: 50%;
-  border: 4px solid #2196f3;
   object-fit: cover;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  border: 4px solid #3498db;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+input, select, button {
+  display: block;
+  width: 100%;
+  margin-top: 12px;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 15px;
   transition: 0.3s;
 }
-.profile-photo img:hover {
-  transform: scale(1.05);
-}
-.profile-photo input[type="file"] {
-  margin-top: 12px;
-  color: #fff;
-}
-
-/* Inputs and selects */
-.profile-section input,
-.profile-section select {
-  width: 100%;
-  padding: 12px 14px;
-  margin-top: 15px;
-  border: none;
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.12);
-  color: #fff;
-  font-size: 15px;
+input:focus, select:focus {
+  border-color: #3498db;
   outline: none;
-  transition: 0.3s ease;
 }
-.profile-section input:focus,
-.profile-section select:focus {
-  background: rgba(255, 255, 255, 0.18);
-  box-shadow: 0 0 8px rgba(33, 150, 243, 0.4);
-}
-
-/* Button */
-.profile-section button {
-  background: #2196f3;
+button {
+  background-color: #3498db;
   color: white;
-  padding: 12px;
-  margin-top: 20px;
   border: none;
-  border-radius: 8px;
-  font-weight: bold;
-  font-size: 16px;
   cursor: pointer;
-  transition: background 0.3s ease;
-}
-.profile-section button:hover {
-  background: #1976d2;
-}
-
-/* Feedback */
-#profileMessage {
-  text-align: center;
-  margin-top: 15px;
   font-weight: bold;
+  transition: 0.3s;
+}
+button:hover {
+  background-color: #2980b9;
 }
 
-/* Assignments Section */
 .assignment-list {
   max-width: 700px;
-  margin: 40px auto;
+  margin: 30px auto;
 }
 .assignment-card {
-  background: rgba(255, 255, 255, 0.08);
-  border-left: 4px solid #2196f3;
-  padding: 18px 20px;
+  background: #ffffff;
+  border-left: 5px solid #3498db;
+  padding: 20px;
+  margin-top: 16px;
   border-radius: 10px;
-  color: #fff;
-  margin-bottom: 15px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
 }
 .assignment-card h4 {
-  margin-bottom: 6px;
-  font-size: 18px;
+  margin-bottom: 10px;
+  color: #2c3e50;
 }
 .assignment-card p {
-  font-size: 14px;
-  margin-bottom: 6px;
+  color: #34495e;
+  margin-bottom: 10px;
 }
 .assignment-card small {
-  font-size: 12px;
-  color: #ddd;
+  color: #888;
+  font-style: italic;
 }
-
-/* Optional fade-in animation */
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+.assignment-file {
+  margin: 12px 0;
+}
+.assignment-file img {
+  max-width: 100%;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+}
+.assignment-file a {
+  color: #2980b9;
+  font-weight: 500;
+  text-decoration: none;
+}
+.assignment-file a:hover {
+  text-decoration: underline;
+}
+.no-assignments {
+  text-align: center;
+  font-style: italic;
+  color: #777;
 }
 </style>

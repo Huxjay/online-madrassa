@@ -4,7 +4,7 @@ $teacher_id = $_SESSION['user_id'] ?? 0;
 
 $query = $conn->prepare("
   SELECT 
-    a.id, u.name AS parent_name, a.specialization, a.join_meetings, a.photo
+    a.id, u.name AS parent_name, a.specialization, a.join_meetings, u.photo
   FROM adult_learners a
   LEFT JOIN users u ON a.parent_id = u.id
   WHERE a.assigned_teacher_id = ?
@@ -19,7 +19,7 @@ $result = $query->get_result();
 <div class="adult-learners-cards">
   <?php while ($row = $result->fetch_assoc()): ?>
     <div class="learner-card">
-      <img src="../uploads/adult_learners/<?= htmlspecialchars($row['photo'] ?: 'default.png') ?>" class="learner-photo" alt="Adult Learner Photo">
+      <img src="../uploads/parents/<?= htmlspecialchars($row['photo'] ?: 'default.png') ?>" class="learner-photo" alt="Adult Learner Photo">
 
       <div class="learner-info">
         <h3><?= htmlspecialchars($row['parent_name']) ?></h3>

@@ -25,7 +25,7 @@ $today = date('Y-m-d');
   <div class="attendance-container">
     <?php while ($student = $result->fetch_assoc()): ?>
       <div class="attendance-card">
-        <img src="../assets/images/students/<?= htmlspecialchars($student['photo']) ?>" alt="Student" class="student-photo">
+        <img src="../uploads/students/<?= htmlspecialchars($student['photo']) ?>" alt="Student" class="student-photo">
         <div class="student-info">
           <h3><?= htmlspecialchars($student['name']) ?></h3>
           <p>Age: <?= $student['age'] ?> | Gender: <?= $student['gender'] ?></p>
