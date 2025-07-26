@@ -1,4 +1,9 @@
+
+
 <?php
+
+die("test file - stop here");
+
 include('../includes/db.php');
 session_start();
 

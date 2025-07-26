@@ -22,7 +22,7 @@ if (!$teacher_id) {
 }
 
 // Fetch classes
-$sql = "SELECT topic, description, date, start_time, end_time, meeting_link 
+$sql = "SELECT topic, description, date, start_time, end_time, meeting_link, recording_url 
         FROM online_classes 
         WHERE teacher_id = ? 
         ORDER BY date DESC, start_time DESC";
@@ -50,6 +50,7 @@ $result = $stmt->get_result();
         <th>Time</th>
         <th>Status</th>
         <th>Join</th>
+        <th>Recording</th>
       </tr>
     </thead>
     <tbody>
@@ -76,7 +77,6 @@ $result = $stmt->get_result();
                 $status = '<span class="badge ended">Ended</span>';
             }
 
-            // Row class
             $rowClass = ($classDate === $today) ? 'today-row' : '';
       ?>
       <tr class="<?= $rowClass ?>">
@@ -92,13 +92,20 @@ $result = $stmt->get_result();
             N/A
           <?php endif; ?>
         </td>
+        <td>
+          <?php if (!empty($row['recording_url'])): ?>
+            <a href="<?= htmlspecialchars($row['recording_url']) ?>" target="_blank" class="watch-btn">📼 Watch</a>
+          <?php else: ?>
+            <span style="color: #aaa;">Not available</span>
+          <?php endif; ?>
+        </td>
       </tr>
       <?php endwhile; ?>
     </tbody>
   </table>
 </div>
 
-<!-- Styles -->
+<!-- Style -->
 <style>
   .search-container {
     text-align: center;
@@ -170,6 +177,21 @@ $result = $stmt->get_result();
 
   .join-btn:hover {
     background: #218838;
+  }
+
+  .watch-btn {
+    padding: 6px 12px;
+    background: #007bff;
+    color: white;
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 14px;
+    transition: background 0.3s ease;
+    font-weight: bold;
+  }
+
+  .watch-btn:hover {
+    background: #0056b3;
   }
 
   .badge {

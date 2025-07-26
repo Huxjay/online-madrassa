@@ -1,4 +1,5 @@
 <?php
+session_start();
 include('../includes/admin_session.php');
 include('../includes/db.php');
 require_once('../includes/send_email.php'); // ✅ For email sending
@@ -36,10 +37,12 @@ if (isset($_POST['approve_teacher'])) {
         exit;
     } else {
         // ⚠ Send with email failure info
-        header("Location: approve_teachers.php?email_error=" . urlencode($sendResult));
-        exit;
+        header("Location: index.php?page=approve_teachers&email_error=" . urlencode($sendResult));
+exit;
     }
 }
+
+
 
 // Fetch unapproved teachers
 $query = "

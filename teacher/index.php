@@ -25,6 +25,7 @@
           <li><a href="index.php?page=students" class="<?= ($_GET['page'] ?? '') === 'students' ? 'active' : '' ?>"><i class="fas fa-users"></i> Students & assigment</a></li>
           <li><a href="index.php?page=adult_learners" class="<?= ($_GET['page'] ?? '') === 'adult_learners' ? 'active' : '' ?>"><i class="fas fa-user-graduate"></i> Adult Learners</a></li>
           <li><a href="index.php?page=add_class" class="<?= ($_GET['page'] ?? '') === 'adult_learners' ? 'active' : '' ?>"><i class="fas fa-video"></i>set online classes</a></li>
+          <li><a href="index.php?page=manage_online_class" class="<?= ($_GET['page'] ?? '') === 'manage_online_class' ? 'active' : '' ?>"><i class="fas fa-video"></i>manage online classes</a></li>
 
           <li><a href="index.php?page=attendance" class="<?= ($_GET['page'] ?? '') === 'attendance' ? 'active' : '' ?>"><i class="fas fa-check-circle"></i> Attendance</a></li>
           <li><a href="index.php?page=chat_box"><i class="fas fa-comments"></i>Live Chat</a></li>
@@ -67,6 +68,10 @@
 
               case 'add_class':
             include 'add_class.php';
+            break;
+
+              case 'manage_online_class':
+            include 'manage_online_class.php';
             break;
            
 

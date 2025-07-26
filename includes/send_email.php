@@ -19,7 +19,7 @@ function sendApprovalEmail($toEmail, $toName) {
         $mail->Host       = 'smtp.gmail.com';
         $mail->SMTPAuth   = true;
         $mail->Username   = 'husseinjuma0097@gmail.com';         // ✅ my Gmail
-        $mail->Password   = 'gmgu qtym jetc rgld';           // ✅ App Password
+        $mail->Password   = 'iqmh vsgu ulph cwnr';           // ✅ App Password
         $mail->SMTPSecure = 'tls';
         $mail->Port       = 587;
 
