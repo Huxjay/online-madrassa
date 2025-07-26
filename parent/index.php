@@ -90,10 +90,11 @@ include('../includes/parent_session.php'); // this one sets session info
 
         <li><a href="index.php?page=my_children"><i class="fas fa-child"></i> My children</a></li>
         <li><a href="index.php?page=chat_box"><i class="fas fa-comments"></i>Live Chat</a></li>
-        <li><a href="#"><i class="fas fa-video"></i> Online Classes</a></li>
+        <li><a href="index.php?page=online_class"><i class="fas fa-video"></i> Online Classes</a></li>
         <li><a href="index.php?page=learning_preference"><i class="fas fa-cogs"></i> Learning Preference</a></li>
         <li><a href="../includes/logout.php"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
       </ul>
+
     </nav>
   </aside>
 
@@ -136,6 +137,12 @@ include('../includes/parent_session.php'); // this one sets session info
             include 'chat_box.php';
             break;
           default:
+
+          
+              case 'online_class':
+            include 'online_class.php';
+            break;
+
             echo "<h1>Welcome, {$_SESSION['user_name']} 👋</h1><p>Manage your children’s progress and activities.</p>";
         }
 

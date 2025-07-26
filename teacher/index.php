@@ -24,8 +24,10 @@
           <li><a href="index.php?page=classes" class="<?= ($_GET['page'] ?? '') === 'classes' ? 'active' : '' ?>"><i class="fas fa-book-reader"></i> My Classes</a></li>
           <li><a href="index.php?page=students" class="<?= ($_GET['page'] ?? '') === 'students' ? 'active' : '' ?>"><i class="fas fa-users"></i> Students & assigment</a></li>
           <li><a href="index.php?page=adult_learners" class="<?= ($_GET['page'] ?? '') === 'adult_learners' ? 'active' : '' ?>"><i class="fas fa-user-graduate"></i> Adult Learners</a></li>
+          <li><a href="index.php?page=add_class" class="<?= ($_GET['page'] ?? '') === 'adult_learners' ? 'active' : '' ?>"><i class="fas fa-video"></i>set online classes</a></li>
 
           <li><a href="index.php?page=attendance" class="<?= ($_GET['page'] ?? '') === 'attendance' ? 'active' : '' ?>"><i class="fas fa-check-circle"></i> Attendance</a></li>
+          <li><a href="index.php?page=chat_box"><i class="fas fa-comments"></i>Live Chat</a></li>
           <li><a href="../includes/logout.php"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
         </ul>
       </nav>
@@ -57,6 +59,17 @@
           case 'adult_learners':
               include 'adult_learners.php';
               break;
+
+              case 'chat_box':
+            include 'chat_box.php';
+            break;
+            
+
+              case 'add_class':
+            include 'add_class.php';
+            break;
+           
+
           default:
               echo "<h1>Welcome, " . htmlspecialchars($_SESSION['user_name']) . " 👋</h1>";
               echo "<p>This is your teacher dashboard. You can manage classes, students, and assignments here.</p>";

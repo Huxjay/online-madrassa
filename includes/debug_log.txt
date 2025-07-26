@@ -1,0 +1,3 @@
+<br />
+<b>Warning</b>:  Undefined variable $messages in <b>C:\xampp\htdocs\online-madrassa\includes\fetch_chat_messages.php</b> on line <b>11</b><br />
+{"status":"success","messages":null}

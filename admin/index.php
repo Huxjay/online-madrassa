@@ -26,6 +26,8 @@
           <li><a href="index.php?page=approve"><i class="fas fa-user-check"></i> Approvals</a></li>
           <li><a href="#"><i class="fas fa-child"></i> Students</a></li>
           <li><a href="#"><i class="fas fa-book"></i> Classes</a></li>
+          <li><a href="index.php?page=chat_box"><i class="fas fa-comments"></i>Live Chat</a></li>
+
           <li><a href="../includes/logout.php"><i class="fas fa-sign-out-alt"></i>Logout</a></li>
         </ul>
       </nav>
@@ -51,6 +53,11 @@
           case 'teachers':
               include 'teachers_list.php';
               break;
+
+          case 'chat_box':
+            include 'chat_box.php';
+            break;
+
           default:
               echo "<h1>Welcome to the Admin Panel</h1><p>Manage users, classes, and content.</p>";
         }
