@@ -2,73 +2,81 @@
 include 'includes/db.php';
 
 $success = false;
+$error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $name = trim($_POST['name']);
     $email = trim($_POST['email']);
-    $password = password_hash(trim($_POST['password']), PASSWORD_DEFAULT);
-    $gender = $_POST['gender'];
-    $age = $_POST['age'];
-    $phone = $_POST['phone'];
-    $qualification = $_POST['qualification'];
-    $specializations = implode(',', $_POST['specialization']);
-    $location_name = $_POST['location'];
-    $latitude = $_POST['latitude'];
-    $longitude = $_POST['longitude'];
-    $district = $_POST['district'];
-    $street = $_POST['street'];
+    $password = trim($_POST['password']);
+    $phone = trim($_POST['phone']);
 
-   // Insert location
-$stmt = $conn->prepare("INSERT INTO locations (name, latitude, longitude, district) VALUES (?, ?, ?, ?)");
-$stmt->bind_param("sdds", $location_name, $latitude, $longitude, $district);
-$stmt->execute();
-$location_id = $stmt->insert_id;
-$stmt->close();
+    if (!preg_match('/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%?&])[A-Za-z\d@$!%?&]{8,}$/', $password)) {
+        $error = "Password must be at least 8 characters, include uppercase, lowercase, number, and special character.";
+    } elseif ($password !== $confirmPassword) {
+        $error = "Passwords do not match.";
+    } elseif (!preg_match('/^255\d{9}$|^254\d{9}$/', $parentPhone)) {
+        $error = "Phone number must start with 255 or 254 and be 12 digits long.";
+    } else {
+        $password = password_hash($password, PASSWORD_DEFAULT);
+        $gender = $_POST['gender'];
+        $age = $_POST['age'];
+        $qualification = $_POST['qualification'];
+        $specializations = implode(',', $_POST['specialization']);
+        $location_name = $_POST['location'];
+        $latitude = $_POST['latitude'];
+        $longitude = $_POST['longitude'];
+        $district = $_POST['district'];
+        $street = $_POST['street'];
 
-    // Insert into users
-    $role = 'teacher';
-    $approved = 0;
-    $stmt = $conn->prepare("INSERT INTO users (name, email, password, role, location_id, approved) VALUES (?, ?, ?, ?, ?, ?)");
-    $stmt->bind_param('ssssii', $name, $email, $password, $role, $location_id, $approved);
-    $stmt->execute();
-    $user_id = $stmt->insert_id;
-    $stmt->close();
+        // Insert location
+        $stmt = $conn->prepare("INSERT INTO locations (name, latitude, longitude, district) VALUES (?, ?, ?, ?)");
+        $stmt->bind_param("sdds", $location_name, $latitude, $longitude, $district);
+        $stmt->execute();
+        $location_id = $stmt->insert_id;
+        $stmt->close();
 
-    // Image upload
-    $upload_dir = 'uploads/teachers/';
-    if (!is_dir($upload_dir)) mkdir($upload_dir, 0777, true);
+        // Insert into users
+        $role = 'teacher';
+        $approved = 0;
+        $stmt = $conn->prepare("INSERT INTO users (name, email, password, role, location_id, approved) VALUES (?, ?, ?, ?, ?, ?)");
+        $stmt->bind_param('ssssii', $name, $email, $password, $role, $location_id, $approved);
+        $stmt->execute();
+        $user_id = $stmt->insert_id;
+        $stmt->close();
 
-    $profile_picture = 'default.png';
+        // Image upload
+        $upload_dir = 'uploads/teachers/';
+        if (!is_dir($upload_dir)) mkdir($upload_dir, 0777, true);
 
-    if (isset($_FILES['profile_picture']) && $_FILES['profile_picture']['error'] === UPLOAD_ERR_OK) {
-        $tmp = $_FILES['profile_picture']['tmp_name'];
-        $originalName = basename($_FILES['profile_picture']['name']);
-        $ext = strtolower(pathinfo($originalName, PATHINFO_EXTENSION));
-        $allowed_ext = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+        $profile_picture = 'default.png';
 
-        if (in_array($ext, $allowed_ext)) {
-            $newName = uniqid('teacher_') . '.' . $ext;
-            $target_path = $upload_dir . $newName;
+        if (isset($_FILES['profile_picture']) && $_FILES['profile_picture']['error'] === UPLOAD_ERR_OK) {
+            $tmp = $_FILES['profile_picture']['tmp_name'];
+            $originalName = basename($_FILES['profile_picture']['name']);
+            $ext = strtolower(pathinfo($originalName, PATHINFO_EXTENSION));
+            $allowed_ext = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
 
-            if (move_uploaded_file($tmp, $target_path)) {
-                $profile_picture = $newName;
+            if (in_array($ext, $allowed_ext)) {
+                $newName = uniqid('teacher_') . '.' . $ext;
+                $target_path = $upload_dir . $newName;
+
+                if (move_uploaded_file($tmp, $target_path)) {
+                    $profile_picture = $newName;
+                }
             }
         }
+
+        // Insert into teachers
+        $stmt = $conn->prepare("INSERT INTO teachers (user_id, gender, age, phone, qualification, specialization, district, street, profile_picture)
+                                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        $stmt->bind_param("isissssss", $user_id, $gender, $age, $phone, $qualification, $specializations, $district, $street, $profile_picture);
+        $stmt->execute();
+        $stmt->close();
+
+        $success = true;
     }
-
-    // Insert into teachers
-    $stmt = $conn->prepare("INSERT INTO teachers (user_id, gender, age, phone, qualification, specialization, district, street, profile_picture)
-                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
-    $stmt->bind_param("isissssss", $user_id, $gender, $age, $phone, $qualification, $specializations, $district, $street, $profile_picture);
-    $stmt->execute();
-    $stmt->close();
-
-    $success = true;
 }
-?>
-
-<!DOCTYPE html>
-<html lang="en">
+?><!DOCTYPE html><html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -123,99 +131,96 @@ $stmt->close();
   <div class="register-container">
     <div class="form-box">
       <h2><i class="fas fa-chalkboard-teacher"></i> Register as Teacher</h2>
-
+      <?php if ($error): ?>
+        <p class="error" style="color:red; font-weight:bold;">❌ <?= $error ?></p>
+      <?php endif; ?>
       <form method="POST" action="" enctype="multipart/form-data">
         <div class="input-group">
           <i class="fas fa-user"></i>
           <input type="text" name="name" placeholder="Full Name" required>
-        </div>
-
-        <div class="input-group">
-          <i class="fas fa-envelope"></i>
-          <input type="email" name="email" placeholder="Email Address" required>
-        </div>
-
-        <div class="input-group">
-          <i class="fas fa-lock"></i>
-          <input type="password" name="password" placeholder="Password" required>
-        </div>
-
-        <div class="input-group">
-          <i class="fas fa-map-marker-alt"></i>
-          <input type="text" name="location" id="location" placeholder="Detecting location..." readonly required>
-          <input type="hidden" name="latitude" id="latitude">
-          <input type="hidden" name="longitude" id="longitude">
-          <input type="hidden" name="district" id="district">
-          <input type="hidden" name="street" id="street">
-        </div>
-
-        <div class="input-group">
-          <i class="fas fa-venus-mars"></i>
-          <select name="gender" required>
-            <option value="">Select Gender</option>
-            <option>Male</option>
-            <option>Female</option>
-          </select>
-        </div>
-
-        <div class="input-group">
-          <i class="fas fa-hourglass-half"></i>
-          <input type="number" name="age" placeholder="Age" required>
-        </div>
-
-        <div class="input-group">
-          <i class="fas fa-phone"></i>
-          <input type="text" name="phone" placeholder="Phone Number" required>
-        </div>
-
-        <h3><i class="fas fa-certificate"></i> Qualifications</h3>
-        <div class="input-group" style="display:block;">
-          <?php
-          $qualifications = [
-            "Maktab Certificate", "Hifdh al-Qur'an", "Tajweed Certification", "Alimiyyah (Aalim/Aalimah)",
-            "Fazil / Dars-e-Nizami", "Ijazah (in Hadith/Quran)", "Mufti Course (Takhassus fi al-Fiqh)",
-            "Bachelor in Islamic Studies (BA)", "Masters in Islamic Studies (MA)", "PhD in Islamic Sciences"
-          ];
-          foreach ($qualifications as $q):
-          ?>
-          <label><input type="radio" name="qualification" value="<?= $q ?>" required> <?= $q ?></label><br>
-          <?php endforeach; ?>
-        </div>
-
-        <h3><i class="fas fa-book-open"></i> Areas of Specialization</h3>
-        <div class="input-group" style="display:block;">
-          <?php
-          $subjects = ["Tajweed", "Hifdh", "Tilawah", "Hadith", "Fiqh", "Aqidah", "Seerah", "Tafsir"];
-          foreach ($subjects as $s):
-          ?>
-          <label><input type="checkbox" name="specialization[]" value="<?= $s ?>"> <?= $s ?></label><br>
-          <?php endforeach; ?>
-        </div>
-
-        <div class="input-group">
-          <i class="fas fa-image"></i>
-          <input type="file" name="profile_picture" accept="image/*" required />
-        </div>
-
-        <button type="submit" class="submit-btn">Register</button>
-      </form>
+        </div><div class="input-group">
+      <i class="fas fa-envelope"></i>
+      <input type="email" name="email" placeholder="Email Address" required>
     </div>
+
+    <div class="input-group">
+      <i class="fas fa-lock"></i>
+      <input type="password" name="password" placeholder="Password" required>
+    </div>
+
+    <div class="input-group">
+      <i class="fas fa-map-marker-alt"></i>
+      <input type="text" name="location" id="location" placeholder="Detecting location..." readonly required>
+      <input type="hidden" name="latitude" id="latitude">
+      <input type="hidden" name="longitude" id="longitude">
+      <input type="hidden" name="district" id="district">
+      <input type="hidden" name="street" id="street">
+    </div>
+
+    <div class="input-group">
+      <i class="fas fa-venus-mars"></i>
+      <select name="gender" required>
+        <option value="">Select Gender</option>
+        <option>Male</option>
+        <option>Female</option>
+      </select>
+    </div>
+
+    <div class="input-group">
+      <i class="fas fa-hourglass-half"></i>
+      <input type="number" name="age" placeholder="Age" required>
+    </div>
+
+    <div class="input-group">
+      <i class="fas fa-phone"></i>
+      <input type="text" name="phone" placeholder="Phone Number (e.g. 2557XXXXXXX)" required>
+    </div>
+
+    <h3><i class="fas fa-certificate"></i> Qualifications</h3>
+    <div class="input-group" style="display:block;">
+      <?php
+      $qualifications = [
+        "Maktab Certificate", "Hifdh al-Qur'an", "Tajweed Certification", "Alimiyyah (Aalim/Aalimah)",
+        "Fazil / Dars-e-Nizami", "Ijazah (in Hadith/Quran)", "Mufti Course (Takhassus fi al-Fiqh)",
+        "Bachelor in Islamic Studies (BA)", "Masters in Islamic Studies (MA)", "PhD in Islamic Sciences"
+      ];
+      foreach ($qualifications as $q):
+      ?>
+      <label><input type="radio" name="qualification" value="<?= $q ?>" required> <?= $q ?></label><br>
+      <?php endforeach; ?>
+    </div>
+
+    <h3><i class="fas fa-book-open"></i> Areas of Specialization</h3>
+    <div class="input-group" style="display:block;">
+      <?php
+      $subjects = ["Tajweed", "Hifdh", "Tilawah", "Hadith", "Fiqh", "Aqidah", "Seerah", "Tafsir"];
+      foreach ($subjects as $s):
+      ?>
+      <label><input type="checkbox" name="specialization[]" value="<?= $s ?>"> <?= $s ?></label><br>
+      <?php endforeach; ?>
+    </div>
+
+    <div class="input-group">
+      <i class="fas fa-image"></i>
+      <input type="file" name="profile_picture" accept="image/*" required />
+    </div>
+
+    <button type="submit" class="submit-btn">Register</button>
+  </form>
+</div>
+
+  </div>  <?php if ($success): ?><div id="successModal" class="modal">
+  <div class="modal-content">
+    <h2>✅ Registration Successful</h2>
+    <p>Please wait for admin approval before logging in.</p>
+    <button onclick="closeModal()">OK</button>
   </div>
+</div>
 
-  <?php if ($success): ?>
-    <div id="successModal" class="modal">
-      <div class="modal-content">
-        <h2>✅ Registration Successful</h2>
-        <p>Please wait for admin approval before logging in.</p>
-        <button onclick="closeModal()">OK</button>
-      </div>
-    </div>
-  <?php endif; ?>
-
-  <script>
+  <?php endif; ?>  <script>
     function closeModal() {
-  window.location.href = "login.php"; // or "index.html" based on your system
-}
+      window.location.href = "login.php";
+    }
     // Geolocation
     window.onload = function () {
       if (navigator.geolocation) {
@@ -243,6 +248,5 @@ $stmt->close();
         document.getElementById("location").value = "Geolocation not supported";
       }
     };
-  </script>
-</body>
+  </script></body>
 </html>
