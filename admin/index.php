@@ -24,7 +24,7 @@
           <li><a href="index.php?page=users"><i class="fas fa-users"></i> Users</a></li>
           <li><a href="index.php?page=teachers"><i class="fas fa-chalkboard-teacher"></i> Teachers</a></li>
           <li><a href="index.php?page=approve"><i class="fas fa-user-check"></i> Approvals</a></li>
-          <li><a href="#"><i class="fas fa-child"></i> Students</a></li>
+          <li><a href="index.php?page=students"><i class="fas fa-child"></i> Students</a></li>
           <li><a href="#"><i class="fas fa-book"></i> Classes</a></li>
           <li><a href="index.php?page=chat_box"><i class="fas fa-comments"></i>Live Chat</a></li>
 
@@ -61,6 +61,11 @@
              case 'users':
             include 'users.php';
             break;
+
+            case 'students':
+            include 'students.php';
+            break;
+
           default:
               echo "<h1>Welcome to the Admin Panel</h1><p>Manage users, classes, and content.</p>";
         }
